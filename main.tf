@@ -26,6 +26,7 @@ resource "local_file" "private_key" {
 # VPC
 resource "aws_vpc" "proxy_server_vpc" {
   cidr_block = "10.6.9.0/28"
+  assign_generated_ipv6_cidr_block = true
   enable_dns_hostnames = true
   tags = {
     Name = "proxy_vpc"
@@ -52,7 +53,7 @@ resource "aws_route_table" "proxy_route_table" {
   }
 
   tags = {
-    Name = "proxy-server route table"
+    Name = "SOCKS5 server route table"
   }
 }
 
@@ -60,6 +61,7 @@ resource "aws_route_table" "proxy_route_table" {
 resource "aws_subnet" "proxy_server_subnet" {
   vpc_id = aws_vpc.proxy_server_vpc.id
   cidr_block = aws_vpc.proxy_server_vpc.cidr_block
+  ipv6_cidr_block = aws_vpc.proxy_server_vpc.ipv6_cidr_block
   # availability_zone = var.availability_zone
   tags = {
     Name = "proxy server subnet"
@@ -72,11 +74,15 @@ resource "aws_route_table_association" "subnet_route_association" {
   route_table_id = aws_route_table.proxy_route_table.id
 }
 
-# Security Groups
+# Security Group
 resource "aws_security_group" "allow_traffic" {
-  name = "proxy-server-security-group"
-  description = "Allow ssh, http and https"
+  name = "SOCKS5-SecGrp"
+  description = "Allow ssh, http and https inbound traffic and all outbound traffic"
   vpc_id = aws_vpc.proxy_server_vpc.id
+  
+  tags = {
+    Name = "allow ssh, web"
+  }
 
   ingress {
     description = "allow HTTPS"
@@ -108,11 +114,71 @@ resource "aws_security_group" "allow_traffic" {
     protocol = -1
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "allow ssh, web"
-  }
 }
+
+# Security Group rules
+## ipv6 Ingress
+# resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv6         = "::/0"
+#   from_port         = 443
+#   ip_protocol       = "tcp"
+#   to_port           = 443
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv6" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv6         = "::/0"
+#   from_port         = 80
+#   ip_protocol       = "tcp"
+#   to_port           = 80
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv6" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv6         = "::/0"
+#   from_port         = 22
+#   ip_protocol       = "tcp"
+#   to_port           = 22
+# }
+
+# ## ipv4 Ingress
+# resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv4         = "0.0.0.0/0"
+#   from_port         = 443
+#   ip_protocol       = "tcp"
+#   to_port           = 443
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv4         = "0.0.0.0/0"
+#   from_port         = 80
+#   ip_protocol       = "tcp"
+#   to_port           = 80
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv4         = "0.0.0.0/0"
+#   from_port         = 22
+#   ip_protocol       = "tcp"
+#   to_port           = 22
+# }
+
+# # Egress all ports
+# resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv4         = "0.0.0.0/0"
+#   ip_protocol       = "-1" # equivalent to all ports
+# }
+
+# resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
+#   security_group_id = aws_security_group.allow_traffic.id
+#   cidr_ipv6         = "::/0"
+#   ip_protocol       = "-1" # equivalent to all ports
+# }
 
 # ec2 instance
 resource "aws_instance" "proxy_server" {
@@ -122,26 +188,27 @@ resource "aws_instance" "proxy_server" {
   associate_public_ip_address = true
   # availability_zone = var.availability_zone
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt update",
-      "sudo apt upgrade -y",
-      "sudo apt install nginx -y"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = var.ec2_username
-      private_key = file("${var.proxy_ssh_key}")
-      host        = self.public_ip
-    }
-  }
-
   # Set key permissions
   provisioner "local-exec" {
     command = "chmod 400 ${var.proxy_ssh_key}"
   }
+
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "sudo apt update",
+  #     "sudo apt upgrade -y",
+  #     "sudo apt install nginx -y"
+  #   ]
+
+  #   connection {
+  #     type        = "ssh"
+  #     user        = var.ec2_username
+  #     private_key = file("${var.proxy_ssh_key}")
+  #     host        = self.public_ip
+  #   }
+  # }
+
   tags = {
-    Name = "SOCKS5 proxy Server"
+    Name = "SOCKS5 Server"
   }
 }
