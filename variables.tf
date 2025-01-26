@@ -1,7 +1,7 @@
 variable "proxy_ssh_key" {
   description = "socks5 proxy ssh private key"
   type = string
-  default = ".terraform/local/proxy_priv_key"
+  default = ".terraform/local/proxy_privkey"
 }
 
 variable "ec2_instance_type" {

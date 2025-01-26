@@ -30,7 +30,7 @@ resource "aws_vpc" "proxy_server_vpc" {
   enable_dns_hostnames = true
   assign_generated_ipv6_cidr_block = true
   tags = {
-    Name = "SOCKS5 proxy server vpc"
+    Name = "Proxy server vpc"
   }
 }
 
@@ -38,7 +38,7 @@ resource "aws_vpc" "proxy_server_vpc" {
 resource "aws_internet_gateway" "proxy_IGW" {
   vpc_id = aws_vpc.proxy_server_vpc.id
   tags = {
-    Name = "proxy Internet Gateway"
+    Name = "Proxy Internet Gateway"
   }
 }
 
@@ -84,122 +84,89 @@ resource "aws_security_group" "allow_traffic" {
   name = "SOCKS5 Security Group"
   description = "Allow ssh, http and https inbound traffic and all outbound traffic"
   vpc_id = aws_vpc.proxy_server_vpc.id
-  
   tags = {
-    Name = "Allow SSH, HTTP, HTTPS"
-  }
-
-  ingress {
-    description = "allow HTTPS"
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = [ "::/0" ]
-  }
-
-  ingress {
-    description = "allow HTTP"
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = [ "::/0" ]
-  }
-
-  ingress {
-    description = "allow SSH"
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = [ "::/0" ]
-  }
-
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = -1
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = [ "::/0" ]
+    Name = "Inbound SSH, HTTP, HTTPS"
   }
 }
 
 # Security Group rules
 ## ipv6 Ingress
-# resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv6         = "::/0"
-#   from_port         = 443
-#   ip_protocol       = "tcp"
-#   to_port           = 443
-# }
+resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv6         = "::/0"
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+}
 
-# resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv6" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv6         = "::/0"
-#   from_port         = 80
-#   ip_protocol       = "tcp"
-#   to_port           = 80
-# }
+resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv6" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv6         = "::/0"
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
+}
 
-# resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv6" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv6         = "::/0"
-#   from_port         = 22
-#   ip_protocol       = "tcp"
-#   to_port           = 22
-# }
+resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv6" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv6         = "::/0"
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
+}
 
-# ## ipv4 Ingress
-# resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv4         = "0.0.0.0/0"
-#   from_port         = 443
-#   ip_protocol       = "tcp"
-#   to_port           = 443
-# }
+## ipv4 Ingress
+resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+}
 
-# resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv4         = "0.0.0.0/0"
-#   from_port         = 80
-#   ip_protocol       = "tcp"
-#   to_port           = 80
-# }
+resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
+}
 
-# resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv4         = "0.0.0.0/0"
-#   from_port         = 22
-#   ip_protocol       = "tcp"
-#   to_port           = 22
-# }
+resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
+}
 
-# # Egress all ports
-# resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv4         = "0.0.0.0/0"
-#   ip_protocol       = "-1" # equivalent to all ports
-# }
+# Egress all ports
+resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # equivalent to all protocols
+}
 
-# resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-#   security_group_id = aws_security_group.allow_traffic.id
-#   cidr_ipv6         = "::/0"
-#   ip_protocol       = "-1" # equivalent to all ports
-# }
+resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
+  security_group_id = aws_security_group.allow_traffic.id
+  cidr_ipv6         = "::/0"
+  ip_protocol       = "-1" # equivalent to all protocols
+}
 
 # ec2 instance
 resource "aws_instance" "proxy_server" {
   ami = var.ec2_instance_ami
   instance_type = var.ec2_instance_type
   key_name = aws_key_pair.proxy_ssh_keys.key_name
-  
   vpc_security_group_ids = [ aws_security_group.allow_traffic.id ]
   subnet_id = aws_subnet.proxy_server_subnet.id
   associate_public_ip_address = true
+  
+  tags = {
+    Name = "SOCKS5 Server"
+  }
 
-  # Set key permissions
+  # Set key permissions locally
   provisioner "local-exec" {
     command = "chmod 400 ${var.proxy_ssh_key}"
   }
@@ -219,7 +186,9 @@ resource "aws_instance" "proxy_server" {
     }
   }
 
-  tags = {
-    Name = "SOCKS5 Server"
+  timeouts {
+    create = "3m"
+    update = "3m"
+    delete = "5m"
   }
 }
