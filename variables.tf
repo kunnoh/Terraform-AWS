@@ -4,6 +4,16 @@ variable "proxy_ssh_key" {
   default = ".terraform/local/proxy_privkey"
 }
 
+variable "vpc_cidr" {
+  default = "10.6.0.0/16"
+  type = string
+}
+
+variable "subnet_A_cidr_ipv4" {
+  default = "10.6.9.0/28"
+  type = string
+}
+
 variable "ec2_instance_type" {
   description = "type of instance"
   type = string

@@ -1,1 +1,1 @@
-# socks5-AWS
+# Socks5 server Debian12

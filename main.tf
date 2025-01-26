@@ -25,12 +25,12 @@ resource "local_file" "private_key" {
 
 # VPC
 resource "aws_vpc" "proxy_server_vpc" {
-  cidr_block = "10.6.0.0/16"
+  cidr_block = var.vpc_cidr
   enable_dns_support = true
   enable_dns_hostnames = true
   assign_generated_ipv6_cidr_block = true
   tags = {
-    Name = "Proxy server vpc"
+    Name = "Proxy server VPC"
   }
 }
 
@@ -46,27 +46,38 @@ resource "aws_internet_gateway" "proxy_IGW" {
 resource "aws_route_table" "proxy_route_table" {
   vpc_id = aws_vpc.proxy_server_vpc.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.proxy_IGW.id
+  tags = {
+    Name = "Public route table"
   }
+}
 
-  route {
-    ipv6_cidr_block = "::/0"
-    gateway_id = aws_internet_gateway.proxy_IGW.id
-  }
+resource "aws_egress_only_internet_gateway" "ipv6_egress_IGW" {
+  vpc_id = aws_vpc.proxy_server_vpc.id
 
   tags = {
-    Name = "SOCKS5 server route table"
+    "Name" = "VPC-IPv6-Egress-Only-IGW"
   }
+}
+
+# ipv6 and ipv4 route
+resource "aws_route" "publicIGWipv4" {
+  route_table_id = aws_route_table.proxy_route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.proxy_IGW.id
+}
+
+resource "aws_route" "publicIGWipv6" {
+  route_table_id = aws_route_table.proxy_route_table.id
+  destination_ipv6_cidr_block = "::/0"
+  gateway_id = aws_internet_gateway.proxy_IGW.id
 }
 
 # Subnet with IPv4 and IPv6
 resource "aws_subnet" "proxy_server_subnet" {
   vpc_id = aws_vpc.proxy_server_vpc.id
   availability_zone = var.availability_zone
-  cidr_block = "10.6.9.0/28"
-  ipv6_cidr_block = aws_vpc.proxy_server_vpc.ipv6_cidr_block
+  cidr_block = var.subnet_A_cidr_ipv4
+  ipv6_cidr_block = cidrsubnet(aws_vpc.proxy_server_vpc.ipv6_cidr_block, 8, 0)
   map_public_ip_on_launch = true
   tags = {
     Name = "SOCKS5 server subnet A"
@@ -166,12 +177,14 @@ resource "aws_instance" "proxy_server" {
     Name = "SOCKS5 Server"
   }
 
+  depends_on = [ aws_internet_gateway.proxy_IGW ]
+
   # Set key permissions locally
   provisioner "local-exec" {
     command = "chmod 400 ${var.proxy_ssh_key}"
   }
 
-  # Upgrade and install nginx
+  # Update and install nginx
   provisioner "remote-exec" {
     inline = [
       "sudo apt update",
@@ -187,7 +200,7 @@ resource "aws_instance" "proxy_server" {
   }
 
   timeouts {
-    create = "3m"
+    create = "2m"
     update = "3m"
     delete = "5m"
   }
