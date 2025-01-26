@@ -47,7 +47,7 @@ resource "aws_route_table" "proxy_route_table" {
   vpc_id = aws_vpc.proxy_server_vpc.id
 
   tags = {
-    Name = "Public route table"
+    Name = "SOCKS5 Public route table"
   }
 }
 
@@ -76,8 +76,9 @@ resource "aws_route" "publicIGWipv6" {
 resource "aws_subnet" "proxy_server_subnet" {
   vpc_id = aws_vpc.proxy_server_vpc.id
   availability_zone = var.availability_zone
-  cidr_block = var.subnet_A_cidr_ipv4
+  cidr_block = cidrsubnet(aws_vpc.proxy_server_vpc.cidr_block, 4, 1)
   ipv6_cidr_block = cidrsubnet(aws_vpc.proxy_server_vpc.ipv6_cidr_block, 8, 0)
+  assign_ipv6_address_on_creation = true
   map_public_ip_on_launch = true
   tags = {
     Name = "SOCKS5 server subnet A"
@@ -151,7 +152,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
   to_port           = 22
 }
 
-# Egress all ports
+# Egress all any ports
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.allow_traffic.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -172,6 +173,7 @@ resource "aws_instance" "proxy_server" {
   vpc_security_group_ids = [ aws_security_group.allow_traffic.id ]
   subnet_id = aws_subnet.proxy_server_subnet.id
   associate_public_ip_address = true
+  ipv6_address_count = 1
   
   tags = {
     Name = "SOCKS5 Server"
