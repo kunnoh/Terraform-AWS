@@ -1,6 +1,6 @@
 # public IP
-output "instance_public_ip" {
-  description = "Public IP of the SOCKS5 proxy EC2 instance"
+output "instance_public_ipv4" {
+  description = "Public IPv4 for the SOCKS5 proxy EC2"
   value       = aws_instance.proxy_server.public_ip
 }
 

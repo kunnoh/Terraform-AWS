@@ -25,5 +25,5 @@ variable "ec2_username" {
 variable "availability_zone" {
   description = "availability region for the proxy server ec2"
   type = string
-  default = "eu-central-1a"
+  default = "us-east-1b"
 }

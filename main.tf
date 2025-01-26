@@ -1,10 +1,10 @@
 terraform {
-    required_providers {
-        aws = {
-            source = "hashicorp/aws"
-            version = "5.84.0"
-        }
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "~>5.84.0"
     }
+  }
 }
 
 # Key pair
@@ -25,17 +25,21 @@ resource "local_file" "private_key" {
 
 # VPC
 resource "aws_vpc" "proxy_server_vpc" {
-  cidr_block = "10.6.9.0/28"
-  assign_generated_ipv6_cidr_block = true
+  cidr_block = "10.6.0.0/16"
+  enable_dns_support = true
   enable_dns_hostnames = true
+  assign_generated_ipv6_cidr_block = true
   tags = {
-    Name = "proxy_vpc"
+    Name = "SOCKS5 proxy server vpc"
   }
 }
 
 # Internet Gateway
 resource "aws_internet_gateway" "proxy_IGW" {
   vpc_id = aws_vpc.proxy_server_vpc.id
+  tags = {
+    Name = "proxy Internet Gateway"
+  }
 }
 
 # Route Table
@@ -57,18 +61,19 @@ resource "aws_route_table" "proxy_route_table" {
   }
 }
 
-# Subnet
+# Subnet with IPv4 and IPv6
 resource "aws_subnet" "proxy_server_subnet" {
   vpc_id = aws_vpc.proxy_server_vpc.id
-  cidr_block = aws_vpc.proxy_server_vpc.cidr_block
+  availability_zone = var.availability_zone
+  cidr_block = "10.6.9.0/28"
   ipv6_cidr_block = aws_vpc.proxy_server_vpc.ipv6_cidr_block
-  # availability_zone = var.availability_zone
+  map_public_ip_on_launch = true
   tags = {
-    Name = "proxy server subnet"
+    Name = "SOCKS5 server subnet A"
   }
 }
 
-# Subnet Route Table association
+# Subnet Routing Table association
 resource "aws_route_table_association" "subnet_route_association" {
   subnet_id = aws_subnet.proxy_server_subnet.id
   route_table_id = aws_route_table.proxy_route_table.id
@@ -76,12 +81,12 @@ resource "aws_route_table_association" "subnet_route_association" {
 
 # Security Group
 resource "aws_security_group" "allow_traffic" {
-  name = "SOCKS5-SecGrp"
+  name = "SOCKS5 Security Group"
   description = "Allow ssh, http and https inbound traffic and all outbound traffic"
   vpc_id = aws_vpc.proxy_server_vpc.id
   
   tags = {
-    Name = "allow ssh, web"
+    Name = "Allow SSH, HTTP, HTTPS"
   }
 
   ingress {
@@ -90,6 +95,7 @@ resource "aws_security_group" "allow_traffic" {
     to_port = 443
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = [ "::/0" ]
   }
 
   ingress {
@@ -98,6 +104,7 @@ resource "aws_security_group" "allow_traffic" {
     to_port = 80
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = [ "::/0" ]
   }
 
   ingress {
@@ -106,6 +113,7 @@ resource "aws_security_group" "allow_traffic" {
     to_port = 22
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = [ "::/0" ]
   }
 
   egress {
@@ -113,6 +121,7 @@ resource "aws_security_group" "allow_traffic" {
     to_port = 0
     protocol = -1
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = [ "::/0" ]
   }
 }
 
@@ -185,28 +194,30 @@ resource "aws_instance" "proxy_server" {
   ami = var.ec2_instance_ami
   instance_type = var.ec2_instance_type
   key_name = aws_key_pair.proxy_ssh_keys.key_name
+  
+  vpc_security_group_ids = [ aws_security_group.allow_traffic.id ]
+  subnet_id = aws_subnet.proxy_server_subnet.id
   associate_public_ip_address = true
-  # availability_zone = var.availability_zone
 
   # Set key permissions
   provisioner "local-exec" {
     command = "chmod 400 ${var.proxy_ssh_key}"
   }
 
-  # provisioner "remote-exec" {
-  #   inline = [
-  #     "sudo apt update",
-  #     "sudo apt upgrade -y",
-  #     "sudo apt install nginx -y"
-  #   ]
+  # Upgrade and install nginx
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install nginx -y"
+    ]
 
-  #   connection {
-  #     type        = "ssh"
-  #     user        = var.ec2_username
-  #     private_key = file("${var.proxy_ssh_key}")
-  #     host        = self.public_ip
-  #   }
-  # }
+    connection {
+      type        = "ssh"
+      user        = var.ec2_username
+      private_key = file("${var.proxy_ssh_key}")
+      host        = self.public_ip
+    }
+  }
 
   tags = {
     Name = "SOCKS5 Server"
