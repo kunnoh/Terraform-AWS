@@ -190,7 +190,7 @@ resource "aws_instance" "proxy_server" {
   provisioner "remote-exec" {
     inline = [
       "sudo apt update",
-      "sudo apt install nginx certbot -y"
+      "sudo apt install nginx certbot shadowsocks-libev -y"
     ]
 
     connection {
