@@ -38,7 +38,7 @@ server {
     error_log /var/log/nginx/kun.zapto.org/error.log warn;
 
     # Restrict access to sensitive files
-    location ~ /\.(env|htaccess|git|idea) {
+    location ~ /\.(env|htaccess|htpasswd|git|idea|svn|DS_Store|vscode) {
         deny all;
     }
 
@@ -51,6 +51,6 @@ server {
     index index.html;
 
     location / {
-        try_files $uri $uri/ =404;
+        try_files $uri $uri/ /404.html;
     }
 }
