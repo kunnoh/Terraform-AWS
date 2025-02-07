@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    <title>Welcome to kun.zapto.org</title>
+<head>
+    <title>kun.zapto.org</title>
     <style nonce="eQs514">
-        html { color-scheme: light dark; }
+        html {
+            color-scheme: light dark;
+        }
         body {
             width: 100%;
             min-height: 95vh;
@@ -16,31 +18,75 @@
             background: rgb(2,0,36);
             background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(53,53,103,1) 0%, rgba(120,71,10,1) 100%);
         }
-        h1{
-            color: aqua;
-        }
-        p{
-            color: #06ffaf;
-        }
-        .content{
+        .content {
             padding: 4rem;
             background: rgba(241, 1, 109, 0.1);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            background-color: rgba(17, 25, 40, 0.75);
+            backdrop-filter: blur(6px) saturate(180%);
+            -webkit-backdrop-filter: blur(6px) saturate(180%);
+            background-color: rgba(11, 255, 60, 0.1);
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.125);
+            border: 1px solid rgba(138, 124, 124, 0.125);
+        }
+        h1 {
+            color: aqua;
+        }
+        p {
+            color: #06ffaf;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
+        header h1 {
+            margin: 0;
+            color: rgb(246, 216, 255);
+            text-align: left;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            z-index: 1000;
+        }
+        footer p {
+            margin: 0;
+            color: rgb(246, 216, 255);
         }
     </style>
     <script nonce="bhY783">
         console.log("Script is allowed");
     </script>
-    </head>
-    <body>
-        <div class="content">
-            <h1>kun.zapto.org!</h1>
-            <p>Welcome!!</p>
-            <p><em>Thank you for using kun.zapto.org</em></p>
-        </div>
-    </body>
+</head>
+<body>
+    <!-- Sticky Header -->
+    <header>
+        <h1>kun.zapto.org</h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1>Welcome to kun.zapto.org!</h1>
+        <p>Thank you for using kun.zapto.org</p>
+    </div>
+
+    <!-- Sticky Footer -->
+    <footer>
+        <p>&copy; 2025 kun.zapto.org | All rights reserved</p>
+    </footer>
+</body>
 </html>
