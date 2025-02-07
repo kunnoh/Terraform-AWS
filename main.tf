@@ -211,10 +211,11 @@ resource "aws_instance" "proxy_server" {
       "sudo apt update",
       "sudo apt install nginx certbot shadowsocks-libev -y",
       "certbot certonly --standalone --preferred-challenges http -d kun.zapto.org",
+      "sudo cp -f ./nginx/default /etc/nginx/sites-available/default",
       "sudo cp -f ./nginx/nginx.conf /etc/nginx/nginx.conf",
       "sudo cp ./nginx/kun.zapto.org /etc/nginx/sites-available/kun.zapto.org",
       "sudo ln -s /etc/nginx/sites-available/kun.zapto.org /etc/nginx/sites-enabled/kun.zapto.org",
-      "sudo cp ./nginx/site/index.html /var/www/kun.zapto.org/index.html",
+      "sudo cp ./nginx/site/* /var/www/kun.zapto.org/*",
       "sudo systemctl restart nginx"
     ]
 
