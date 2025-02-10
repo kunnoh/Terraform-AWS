@@ -205,11 +205,11 @@ resource "aws_instance" "proxy_server" {
   # Update and install nginx
   provisioner "remote-exec" {
     inline = [
+      "sudo apt update && sudo upgrade -y",
+      "sudo apt install nginx certbot rsync iptables shadowsocks-libev -y",
       "sudo mkdir /var/log/nginx/kun.zapto.org",
       "sudo mkdir /var/www/kun.zapto.org",
       "sudo chown $USER:$USER /var/www/kun.zapto.org",
-      "sudo apt update",
-      "sudo apt install nginx certbot shadowsocks-libev -y",
       "certbot certonly --standalone --preferred-challenges http -d kun.zapto.org",
       "sudo cp -f ./nginx/default /etc/nginx/sites-available/default",
       "sudo cp -f ./nginx/nginx.conf /etc/nginx/nginx.conf",

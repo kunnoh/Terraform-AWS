@@ -13,6 +13,7 @@ body {
     justify-content: center;
     align-items: center;
     margin: 0 auto;
+    padding: 1rem;
     font-family: Tahoma, Verdana, Arial, sans-serif;
     background: rgb(2,0,36);
     background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(53,53,103,1) 0%, rgba(120,71,10,1) 100%);
