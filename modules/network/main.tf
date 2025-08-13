@@ -9,7 +9,6 @@
 # Route Table
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.main.id
-
   tags = {
     Name = "WebServer Public route table"
   }
@@ -42,7 +41,7 @@ resource "aws_vpc" "main" {
 # Subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.0/28"
+  cidr_block        = "10.8.8.0/28"
   map_public_ip_on_launch = true
   tags = {
     Name = "WebServer-Subnet"
