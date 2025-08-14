@@ -1,36 +1,14 @@
 # VPC
 resource "aws_vpc" "main" {
-  cidr_block = "10.6.9.6/28"
+  cidr_block = "10.6.9.0/28"
 #   cidr_block = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support = true
-#   assign_generated_ipv6_cidr_block = true
+  assign_generated_ipv6_cidr_block = true
   tags = {
     Name = "WebServer-VPC"
   }
 }
-
-# Output the VPC ID and CIDR block for reference
-output "vpc_id" {
-  description = "ID of the datacenter VPC"
-  value       = aws_vpc.datacenter_vpc.id
-}
-
-output "vpc_cidr_block" {
-  description = "CIDR block of the datacenter VPC"
-  value       = aws_vpc.datacenter_vpc.cidr_block
-}
-
-output "internet_gateway_id" {
-  description = "ID of the Internet Gateway"
-  value       = aws_internet_gateway.datacenter_igw.id
-}
-
-
-
-
-
-
 
 # Route Table
 resource "aws_route_table" "route_table" {
