@@ -71,10 +71,10 @@ module "network" {
 }
 
 module "compute" {
-  source            = "./modules/compute"
-  ami_id            = var.ami_id
-  instance_type     = var.instance_type
-  key_name         = var.key_name
-  subnet_id        = module.network.subnet_id
+  source = "./modules/compute"
+  ami_id = var.ami_id
+  instance_type = var.instance_type
+  key_name = var.key_name
+  subnet_id = module.network.subnet_id
   security_group_id = module.network.security_group_id
 }
