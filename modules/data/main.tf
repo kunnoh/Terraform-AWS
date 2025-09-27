@@ -1,6 +1,9 @@
 # Random suffix for S3 bucket name uniqueness
 resource "random_id" "bucket_suffix" {
   byte_length = 4
+  keepers = {
+    environment = var.environment # Force recreation on environment change
+  }
 }
 
 # S3 Bucket

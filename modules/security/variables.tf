@@ -9,11 +9,17 @@ variable "environment" {
 
 variable "project_name" {
   description = "Project name for resource naming"
-  type = string
+  type        = string
 }
 
-variable "bucket_prefix" {
-  description = "S3 bucket prefix"
+variable "key_name" {
+  description = "SSH key name for EC2 instance"
   type = string
+  default = ".terraform/local/proxy_privkey"
 }
 
+variable "save_private_key_locally" {
+  description = "Whether to save private key locally (use with caution)"
+  type = bool
+  default = false
+}
