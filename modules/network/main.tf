@@ -12,6 +12,7 @@ resource "aws_vpc" "main" {
 # Internet Gateway
  resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
+  
   tags = {
     Name = "${var.project_name} - ${var.environment} - IGW"
   }
@@ -24,6 +25,7 @@ resource "aws_subnet" "public" {
   cidr_block        = var.public_subnet_cidr[count.index]
   availability_zone = var.availability_zones[count.index]
   map_public_ip_on_launch = true
+  
   tags = {
     Name = "${var.project_name}-${var.environment}-public-subnet-${count.index + 1}"
     Type = "public"
@@ -113,87 +115,17 @@ resource "aws_route_table_association" "private" {
 
 
 
-resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_https_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 443
-  ip_protocol       = "tcp"
-  to_port           = 443
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_http_traffic_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
-}
-
-  ## ipv6 Ingress
-  # resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   from_port         = 443
-  #   ip_protocol       = "tcp"
-  #   to_port           = 443
-  # }
-
-  # resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   from_port         = 80
-  #   ip_protocol       = "tcp"
-  #   to_port           = 80
-  # }
-
-  # resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   from_port         = 22
-  #   ip_protocol       = "tcp"
-  #   to_port           = 22
-  # }
-
-  # # Egress all any ports
-  # resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   ip_protocol       = "-1" # equivalent to all protocols
-  # }
 
 
-
-# Route Table
-resource "aws_route_table" "route_table" {
-  vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "WebServer Public route table"
-  }
-}
-
-# ipv6 and ipv4 route
-resource "aws_route" "publicIGWipv4" {
-  route_table_id = aws_route_table.route_table.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.proxy_IGW.id
-}
-
-# resource "aws_route" "publicIGWipv6" {
-#   route_table_id = aws_route_table.proxy_route_table.id
-#   destination_ipv6_cidr_block = "::/0"
+# # ipv6 and ipv4 route
+# resource "aws_route" "publicIGWipv4" {
+#   route_table_id = aws_route_table.route_table.id
+#   destination_cidr_block = "0.0.0.0/0"
 #   gateway_id = aws_internet_gateway.proxy_IGW.id
 # }
+
+# # resource "aws_route" "publicIGWipv6" {
+# #   route_table_id = aws_route_table.proxy_route_table.id
+# #   destination_ipv6_cidr_block = "::/0"
+# #   gateway_id = aws_internet_gateway.proxy_IGW.id
+# # }
