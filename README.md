@@ -1,9 +1,9 @@
 # Terraform AWS
-This document outlines the process of installing [Terraform](https://developer.hashicorp.com/terraform) and using it on [AWS](https://aws.amazon.com/) for Infrastructure configuration.  
+This document outlines the process of installing and configuring [Terraform](https://developer.hashicorp.com/terraform) and using it on [AWS](https://aws.amazon.com/) to provision resources on the cloud.  
 
 ## Install
 ### Terraform
-It can be installed using distro [package manager](https://en.wikipedia.org/wiki/List_of_software_package_management_systems) or [manually](https://developer.hashicorp.com/terraform/install#linux).  
+This tool can be installed using distro [package manager](https://en.wikipedia.org/wiki/List_of_software_package_management_systems) or [manually](https://developer.hashicorp.com/terraform/install#linux).  
 
 #### Manual install  
 Use [wget](https://www.gnu.org/software/wget/) to download the appropriate pre-compiled [binary](https://developer.hashicorp.com/terraform/install) zipped archive for your system and [unzip](https://linux.die.net/man/1/unzip).  
