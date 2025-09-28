@@ -1,5 +1,5 @@
 # Terraform AWS
-This document outlines the process of installing and configuring [Terraform](https://developer.hashicorp.com/terraform) and using it on [AWS](https://aws.amazon.com/) to provision resources on the cloud.  
+This document outlines the process of installing and configuring [Terraform](https://developer.hashicorp.com/terraform) and use it on [AWS](https://aws.amazon.com/) to provision resources on the cloud.  
 
 ## Install
 ### Terraform
