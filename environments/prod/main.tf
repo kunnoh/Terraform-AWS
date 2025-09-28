@@ -1,11 +1,18 @@
 terraform {
-  required_version = "value"
+  required_version = "> 1.0"
   required_providers {
     aws = {
-        source = "value"
-        version = "value"
+      source = "hashicorp/aws"
+      version = "6.14.1"
     }
   }
+  
+  ## For remote state
+  # backend "s3" {
+  #   bucket = "your-terraform-state-bucket"
+  #   key    = "dev/terraform.tfstate"
+  #   region = "us-west-2"
+  # }
 }
 
 provider "aws" {
