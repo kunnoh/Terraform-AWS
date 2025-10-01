@@ -25,6 +25,10 @@ provider "aws" {
         ManagedBy = "Terraform"
     }
   }
+
+  endpoints {
+    
+  }
 }
 
 # Security
