@@ -3,7 +3,7 @@ variable "environment" {
   type = string
   validation {
     condition = contains(["dev", "staging", "prod"], var.environment)
-    error_message = "Environment must be dev, staging, or prod."
+    error_message = "Environment must be dev, staging, or prod"
   }
 }
 
@@ -35,5 +35,5 @@ variable "key_name" {
 variable "instance_type" {
   description = "Instance type"
   type = string
-  default = "micro"
+  default = "t2.micro"
 }

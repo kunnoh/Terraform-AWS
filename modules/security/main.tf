@@ -5,13 +5,14 @@ resource "tls_private_key" "WebServer_ed25519" {
   # Lifecycle management for security
   lifecycle {
     prevent_destroy = true # Prevent accidental deletion
-    create_before_destroy = true # Create new key before destroying old one (zero-downtime rotation)
-    ignore_changes = [ # Ignore changes to prevent drift
-      # Don't recreate on minor provider updates
-    ]
+    # create_before_destroy = true # Create new key before destroying old one (zero-downtime rotation)
+    # ignore_changes = [ # Ignore changes to prevent drift
+    #   # Don't recreate on minor provider updates
+    # ]
   }
 }
 
+# Create AWS key pair
 resource "aws_key_pair" "main" {
   key_name = "${var.project_name}-${var.environment}-key"
   public_key = tls_private_key.WebServer_ed25519.public_key_openssh
@@ -33,43 +34,47 @@ resource "local_file" "private_key" {
   content = tls_private_key.WebServer_ed25519.private_key_openssh
   filename = "${path.module}/../../keys/${var.project_name}-${var.environment}-key.pem"
   file_permission = "0600"
-}
 
-# Secure storage in AWS systems manager parameter store
-resource "aws_ssm_parameter" "private_key" {
-  name  = "/${var.project_name}/${var.environment}/webserver/private-key"
-  type  = "SecureString"
-  value = tls_private_key.webserver_ed25519.private_key_pem
-  
-  # Use customer-managed KMS key for enhanced security
-  key_id = aws_kms_key.webserver_key_encryption.arn
-  
-  description = "ED25519 private key for ${var.project_name} webserver in ${var.environment}"
-  
-  tags = merge(local.common_tags, {
-    KeyType     = "ED25519"
-    Purpose     = "WebServer-SSH"
-    Sensitive   = "true"
-  })
-  
   lifecycle {
-    ignore_changes = [value]
+    create_before_destroy = true
   }
 }
 
-resource "aws_ssm_parameter" "public_key" {
-  name  = "/${var.project_name}/${var.environment}/webserver/public-key"
-  type  = "String"
-  value = tls_private_key.webserver_ed25519.public_key_openssh
+# # Secure storage in AWS systems manager parameter store
+# resource "aws_ssm_parameter" "private_key" {
+#   name  = "/${var.project_name}/${var.environment}/webserver/private-key"
+#   type  = "SecureString"
+#   value = tls_private_key.webserver_ed25519.private_key_pem
   
-  description = "ED25519 public key for ${var.project_name} webserver in ${var.environment}"
+#   # Use customer-managed KMS key for enhanced security
+#   key_id = aws_kms_key.webserver_key_encryption.arn
   
-  tags = merge(local.common_tags, {
-    KeyType   = "ED25519"
-    Purpose   = "WebServer-SSH"
-    Sensitive = "false"
-  })
-}
+#   description = "ED25519 private key for ${var.project_name} webserver in ${var.environment}"
+  
+#   tags = merge(local.common_tags, {
+#     KeyType     = "ED25519"
+#     Purpose     = "WebServer-SSH"
+#     Sensitive   = "true"
+#   })
+  
+#   lifecycle {
+#     ignore_changes = [value]
+#   }
+# }
+
+# resource "aws_ssm_parameter" "public_key" {
+#   name  = "/${var.project_name}/${var.environment}/webserver/public-key"
+#   type  = "String"
+#   value = tls_private_key.webserver_ed25519.public_key_openssh
+  
+#   description = "ED25519 public key for ${var.project_name} webserver in ${var.environment}"
+  
+#   tags = merge(local.common_tags, {
+#     KeyType   = "ED25519"
+#     Purpose   = "WebServer-SSH"
+#     Sensitive = "false"
+#   })
+# }
 
 locals {
   # Common tags applied to all resources

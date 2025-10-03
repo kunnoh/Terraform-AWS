@@ -3,6 +3,12 @@ This document outlines the process of installing and configuring [Terraform](htt
 
 ## Install
 ### AWS CLI
+Download and install **aws-cli**.  
+```sh
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
 
 ### Terraform
 Terraform can be installed using distro [package manager](https://en.wikipedia.org/wiki/List_of_software_package_management_systems) or [manually](https://developer.hashicorp.com/terraform/install#linux).  
@@ -92,33 +98,33 @@ terraform {
 ```
 
 
-### Run Terraform
+### Deployment
 Initialize Terraform, first time or after module changes.  
 
 #### Staging
 Initialize.  
 ```sh
-cd environments/staging
+cd env/staging
 terraform init
 ```
 
 Run.  
 ```sh
-terraform plan -var-file="environments/staging/staging.tfvars"
-terraform apply -var-file="environments/staging/staging.tfvars"
+terraform plan -var-file="./staging.tfvars"
+terraform apply -var-file="./staging.tfvars"
 ```
 
 #### Production
 Initialize.  
 ```sh
-cd environments/staging
+cd env/staging
 terraform init
 ```
 
 Run.  
 ```sh
-terraform plan -var-file="env/prod/prod.tfvars"
-terraform apply -var-file="env/prod/prod.tfvars"
+terraform plan -var-file="prod.tfvars"
+terraform apply -var-file="prod.tfvars"
 ```
 
 #### SSH key

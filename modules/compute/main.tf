@@ -136,11 +136,11 @@ resource "aws_instance" "web" {
 resource "aws_instance" "app" {
   count = length(var.private_subnets_ids)
 
-  ami                    = data.aws_ami.amazon_linux.id
+  ami                    = data.aws_ami.debian.id
   instance_type          = var.instance_type
   key_name              = var.key_name
   vpc_security_group_ids = [aws_security_group.app.id]
-  subnet_id             = var.privar.private_subnets_ids[count.index]
+  subnet_id             = var.private_subnets_ids[count.index]
 
   user_data = base64encode(<<-EOF
                 #!/bin/bash
@@ -157,70 +157,3 @@ resource "aws_instance" "app" {
     Type = "app"
   }
 }
-
-
-
-
-
-resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_https_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 443
-  ip_protocol       = "tcp"
-  to_port           = 443
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
-}
-
-resource "aws_vpc_security_group_egress_rule" "allow_http_traffic_ipv4" {
-  security_group_id = aws_security_group.WebServer-SG.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
-}
-
-  ## ipv6 Ingress
-  # resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   from_port         = 443
-  #   ip_protocol       = "tcp"
-  #   to_port           = 443
-  # }
-
-  # resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   from_port         = 80
-  #   ip_protocol       = "tcp"
-  #   to_port           = 80
-  # }
-
-  # resource "aws_vpc_security_group_ingress_rule" "allow_ssh_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   from_port         = 22
-  #   ip_protocol       = "tcp"
-  #   to_port           = 22
-  # }
-
-  # # Egress all any ports
-  # resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv6" {
-  #   security_group_id = aws_security_group.allow_traffic.id
-  #   cidr_ipv6         = "::/0"
-  #   ip_protocol       = "-1" # equivalent to all protocols
-  # }
-

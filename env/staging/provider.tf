@@ -6,8 +6,4 @@ terraform {
       version = "6.14.1"
     }
   }
-  
-  backend "local" {
-    path = "../../state/staging/terraform.tfstate"
-  }
 }

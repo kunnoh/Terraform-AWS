@@ -38,6 +38,7 @@ variable "private_subnet_cidrs" {
 variable "instance_type" {
   description = "EC2 instance type"
   type = string
+  default = "t2.micro"
 }
 
 variable "key_pair_name" {
@@ -51,7 +52,7 @@ variable "bucket_prefix" {
 }
 
 variable "save_private_key_locally" {
-  description = "Whether to save private key locally (use with caution)"
+  description = "Save private key locally"
   type = bool
   default = false
 }
