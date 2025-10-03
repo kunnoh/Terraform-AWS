@@ -1,16 +1,27 @@
 # Terraform AWS
-This document outlines the process of installing and configuring [Terraform](https://developer.hashicorp.com/terraform) and use it on [AWS](https://aws.amazon.com/) to provision resources on the cloud for **production** and **staging** environments.  
+This document outlines the process of installing and configuring [Terraform](https://developer.hashicorp.com/terraform) and use it on [Amazon Web Service](https://aws.amazon.com/) to provision resources on the cloud for **Production** and **Staging** Linux environments. Use [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for easy authentication and authorization on **AWS** on the terminal.    
 
 ## Install
-### Terraform
-This tool can be installed using distro [package manager](https://en.wikipedia.org/wiki/List_of_software_package_management_systems) or [manually](https://developer.hashicorp.com/terraform/install#linux).  
+### AWS CLI
 
-#### Manual install  
+### Terraform
+Terraform can be installed using distro [package manager](https://en.wikipedia.org/wiki/List_of_software_package_management_systems) or [manually](https://developer.hashicorp.com/terraform/install#linux).  
+
+#### Package manager
+Use **apt** to install in **Debian-like** distros.  
+Add **GPG** keys and repository
+```sh
+wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
+```
+
+#### Manual  
 Check current available version on [Terraform binaries website](https://releases.hashicorp.com/terraform) and choose right [architecture](https://en.wikipedia.org/wiki/Computer_architecture).  
 Use [wget](https://www.gnu.org/software/wget/) or [curl](https://curl.se/) to download the appropriate pre-compiled [binary](https://developer.hashicorp.com/terraform/install) zipped archive for your system and [unzip](https://linux.die.net/man/1/unzip).  
 ```sh
 wget -c -O ~/Downloads/terraform.zip https://releases.hashicorp.com/terraform/<version>/terraform_<version>_darwin_<arch>.zip
-### or
+# or
 curl -C - -Lo ~/Downloads/terraform.zip https://releases.hashicorp.com/terraform/<version>/terraform_<version>_linux_<arch>.zip
 ```
 ##### wget
@@ -22,8 +33,7 @@ curl -C - -Lo ~/Downloads/terraform.zip https://releases.hashicorp.com/terraform
 **`-L`** - Follow redirects.  
 **`-o`** - Output filename.  
 
-Extract,  
-move to installation directory,  
+Extract, move to installation directory,  
 set permissions and add to path persistently.  
 ```sh
 unzip ~/Downloads/terraform.zip -d ~/Downloads/terraform # Extract to ~/Downloads/terraform directory
@@ -45,7 +55,7 @@ terraform --version
 ### State
 Create `state/` directory in project root for saving current state of each environment instead of single terraform.tfstate in root directory.  
 
-For **Development**, save state locally.  
+For **Development**, save statefile locally.  
 ```tf
 terraform {
   backend "local" {
@@ -54,7 +64,7 @@ terraform {
 }
 ``` 
 
-For **Production** and **Staging**, save statefile to **s3** bucket to prevent state conflicts.  
+For **Production** and **Staging**, save statefile to **S3** bucket to prevent state conflicts.  
 Add below to `environments/staging/backend.tf`.  
 ```tf
 terraform {
@@ -107,8 +117,8 @@ terraform init
 
 Run.  
 ```sh
-terraform plan -var-file="environments/prod/prod.tfvars"
-terraform apply -var-file="environments/prod/prod.tfvars"
+terraform plan -var-file="env/prod/prod.tfvars"
+terraform apply -var-file="env/prod/prod.tfvars"
 ```
 
 #### SSH key
