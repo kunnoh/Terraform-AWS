@@ -51,7 +51,7 @@ variable "bucket_prefix" {
 }
 
 variable "save_private_key_locally" {
-  description = "Whether to save private key locally (use with caution)"
+  description = "Save private key locally"
   type = bool
   default = false
 }
