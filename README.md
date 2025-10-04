@@ -123,8 +123,8 @@ terraform init
 
 Run.  
 ```sh
-terraform plan -var-file="prod.tfvars"
-terraform apply -var-file="prod.tfvars"
+terraform plan -var-file="./prod.tfvars"
+terraform apply -var-file="./prod.tfvars"
 ```
 
 #### SSH key
